@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Cardiology — Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --page:#d9d7d1;
+    --frame:#37362f;
+    --screen:#eae7e0;
+    --card:#ffffff;
+    --card-soft:#f3f1ea;
+    --ink:#1e1d1a;
+    --ink-soft:#8b8a80;
+    --ink-faint:#b7b5aa;
+    --line:#dcd9cf;
+    --yellow:#e7e14e;
+    --yellow-soft:#f2eea6;
+    --pill-dark:#201f1b;
+    --mint:#e5ead4;
+    --mint-line:#c7cf9e;
+    --up:#d97757;
+    --down:#5c8a6b;
+    --shadow: 0 1px 2px rgba(30,29,26,.06), 0 8px 20px rgba(30,29,26,.06);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--page);
+    font-family:'Inter',sans-serif;
+    color:var(--ink);
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:48px 20px;
+  }
+
+  /* ---------- device frame ---------- */
+  .frame{
+    background:var(--frame);
+    border-radius:34px;
+    padding:14px;
+    box-shadow: 0 30px 60px rgba(0,0,0,.28), 0 6px 16px rgba(0,0,0,.18);
+  }
+  .screen{
+    width:780px;
+    max-width:88vw;
+    background:var(--screen);
+    border-radius:24px;
+    padding:26px 26px 18px;
+    position:relative;
+    overflow:hidden;
+  }
+
+  /* ---------- topbar ---------- */
+  .topbar{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    margin-bottom:22px;
+  }
+  .close-btn{
+    width:34px;height:34px;
+    border-radius:50%;
+    background:var(--card);
+    border:none;
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:var(--shadow);
+    color:var(--ink);
+    font-size:15px;
+    cursor:pointer;
+    flex:none;
+  }
+  .topbar h1{
+    font-size:22px;
+    font-weight:700;
+    letter-spacing:-.01em;
+    margin:0;
+  }
+  .topbar-mark{
+    margin-left:auto;
+    width:26px;height:26px;
+    border-radius:8px;
+    background:var(--ink-faint);
+    opacity:.5;
+  }
+
+  /* ---------- shapemorph nav ---------- */
+  .nav-wrap{
+    position:relative;
+    height:44px;
+    margin-bottom:22px;
+    filter:drop-shadow(0 1px 1px rgba(30,29,26,.05));
+  }
+  .nav-wrap svg{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    display:block;
+  }
+  .nav-row{
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:stretch;
+    font-size:12.5px;
+    font-weight:600;
+  }
+  .nav-seg{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    white-space:nowrap;
+  }
+  .nav-seg.active{ flex:0 0 165px; color:#fff; }
+  .nav-seg:not(.active){ flex:1 1 0; color:var(--ink); }
+  .nav-seg svg{ width:14px; height:14px; flex:none; }
+
+  /* ---------- patient row ---------- */
+  .patient-row{
+    display:flex;
+    gap:14px;
+    margin-bottom:16px;
+  }
+  .patient-card{
+    background:var(--card);
+    border-radius:18px;
+    padding:12px 16px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    box-shadow:var(--shadow);
+    flex:0 0 220px;
+  }
+  .patient-card img{
+    width:44px;height:44px;
+    border-radius:50%;
+    object-fit:cover;
+    flex:none;
+  }
+  .patient-meta .sub{ font-size:11px; color:var(--ink-soft); margin-bottom:2px; }
+  .patient-meta .name{ font-size:14px; font-weight:700; }
+
+  .vitals{
+    flex:1;
+    background:var(--card);
+    border-radius:18px;
+    padding:12px 18px;
+    box-shadow:var(--shadow);
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .vitals-top{ display:flex; align-items:flex-end; gap:34px; }
+  .vital{ display:flex; flex-direction:column; gap:2px; }
+  .vital .label{ font-size:10px; color:var(--ink-faint); text-transform:capitalize; }
+  .vital .value{ font-size:14px; font-weight:700; }
+  .vital .value small{ font-weight:500; color:var(--ink-soft); font-size:10px; }
+  .vital.diagnosis .value{ font-size:16px; }
+
+  .vitals-tabs{
+    display:flex;
+    gap:6px;
+    flex-wrap:wrap;
+  }
+  .vtab{
+    background:var(--card-soft);
+    border-radius:20px;
+    padding:6px 12px;
+    font-size:10.5px;
+    font-weight:600;
+    color:var(--ink-soft);
+    display:flex;
+    align-items:center;
+    gap:5px;
+  }
+  .vtab.active{ background:var(--pill-dark); color:#fff; }
+  .vtab.icon-only{ padding:6px 8px; }
+  .vtab svg{ width:11px; height:11px; }
+
+  /* ---------- timeline grid ---------- */
+  .timeline-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:18px;
+    position:relative;
+  }
+  .week{
+    position:relative;
+    padding-left:20px;
+  }
+  .week::before{
+    content:'';
+    position:absolute;
+    left:5px; top:22px; bottom:0;
+    width:1px;
+    background:var(--line);
+  }
+  .node{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:10px;
+    position:relative;
+  }
+  .node .dot{
+    width:11px;height:11px;
+    border-radius:50%;
+    background:var(--yellow);
+    border:3px solid var(--yellow-soft);
+    flex:none;
+    margin-left:-19px;
+    z-index:1;
+  }
+  .node .when b{ display:block; font-size:12.5px; font-weight:700; }
+  .node .when span{ font-size:10px; color:var(--ink-faint); }
+
+  .chip-row{
+    display:flex;
+    gap:8px;
+    margin-bottom:10px;
+    flex-wrap:wrap;
+  }
+  .chip{
+    background:var(--card);
+    border-radius:14px;
+    padding:6px 10px 6px 8px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    font-size:11px;
+    font-weight:600;
+    box-shadow:var(--shadow);
+  }
+  .chip .swatch{
+    width:18px;height:18px;
+    border-radius:50%;
+    background:var(--card-soft);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .chip .swatch svg{ width:10px;height:10px; }
+  .chip .count{ color:var(--ink-faint); font-weight:600; }
+
+  .card{
+    background:var(--card);
+    border-radius:18px;
+    padding:14px 16px 16px;
+    box-shadow:var(--shadow);
+    margin-bottom:10px;
+  }
+  .card-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:8px;
+  }
+  .card-head .title{ font-size:12.5px; font-weight:700; }
+  .card-head .more{ color:var(--ink-faint); font-size:14px; }
+
+  .bp-chart{ position:relative; height:64px; margin-bottom:6px; }
+  .bp-chart svg{ width:100%; height:100%; display:block; }
+  .bp-bubble{
+    position:absolute;
+    top:-6px;
+    background:var(--pill-dark);
+    color:#fff;
+    font-size:10px;
+    font-weight:700;
+    padding:3px 8px;
+    border-radius:8px;
+  }
+  .bp-foot{ display:flex; align-items:baseline; justify-content:space-between; }
+  .bp-foot .avg{ font-size:11px; color:var(--ink-soft); }
+  .bp-foot .avg b{ color:var(--ink); font-weight:700; }
+  .bp-foot .delta{ font-size:12px; font-weight:700; }
+  .bp-foot .delta.up{ color:var(--up); }
+  .bp-foot .delta.down{ color:var(--down); }
+
+  .symptom-body{ display:flex; align-items:center; gap:14px; }
+  .symptom-body svg{ width:40px; height:56px; flex:none; }
+  .symptom-tag{
+    background:var(--card-soft);
+    border-radius:12px;
+    padding:5px 10px;
+    font-size:11px;
+    font-weight:600;
+    display:inline-block;
+  }
+
+  .ecg-chart svg{ width:100%; height:44px; display:block; }
+
+  /* ---------- footer timeline ---------- */
+  .foot-strip{
+    margin-top:16px;
+    background:var(--card);
+    border-radius:16px;
+    padding:10px 14px;
+    display:flex;
+    align-items:center;
+    gap:16px;
+    box-shadow:var(--shadow);
+    overflow:hidden;
+  }
+  .foot-cal{
+    display:flex; align-items:center; gap:6px;
+    font-size:10.5px; font-weight:700; color:var(--ink-soft);
+    flex:none;
+    padding-right:14px;
+    border-right:1px solid var(--line);
+  }
+  .foot-cal svg{ width:14px;height:14px; }
+  .foot-months{
+    display:flex;
+    gap:22px;
+    flex:1;
+    font-size:10.5px;
+    font-weight:600;
+    color:var(--ink-faint);
+  }
+  .foot-months span{ position:relative; padding-top:10px; }
+  .foot-months span.hl{ color:var(--ink); }
+  .foot-months span.hl::before{
+    content:'';
+    position:absolute;
+    top:0;left:50%;
+    transform:translateX(-50%);
+    width:5px;height:5px;
+    border-radius:50%;
+    background:var(--yellow);
+  }
+
+  @media (max-width: 720px){
+    .patient-row{ flex-direction:column; }
+    .patient-card{ flex:none; }
+    .timeline-grid{ grid-template-columns:1fr; }
+    .vitals-top{ flex-wrap:wrap; gap:16px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="frame">
+  <div class="screen">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <button class="close-btn">✕</button>
+      <h1>Cardiology</h1>
+      <div class="topbar-mark"></div>
+    </div>
+
+    <!-- SHAPEMORPH NAV -->
+    <div class="nav-wrap">
+      <svg viewBox="0 0 700 44" preserveAspectRatio="none">
+        <!-- active (black) segment: right edge bulges out top/bottom, pinches at mid -->
+        <path fill="#201f1b" d="
+          M22,0 L160,0
+          C176,0 176,10 164,15
+          C154,19 154,25 164,29
+          C176,34 176,44 160,44
+          L22,44
+          A22,22 0 0 1 0,22
+          A22,22 0 0 1 22,0 Z" />
+        <!-- light segment: shares the exact same boundary, opposite winding -->
+        <path fill="#efece3" d="
+          M160,0 L678,0
+          A22,22 0 0 1 700,22
+          A22,22 0 0 1 678,44
+          L160,44
+          C176,44 176,34 164,29
+          C154,25 154,19 164,15
+          C176,10 176,0 160,0 Z" />
+        <!-- dividers between inactive segments -->
+        <line x1="272" y1="12" x2="272" y2="32" stroke="#dcd9cf" stroke-width="1"/>
+        <line x1="380" y1="12" x2="380" y2="32" stroke="#dcd9cf" stroke-width="1"/>
+        <line x1="488" y1="12" x2="488" y2="32" stroke="#dcd9cf" stroke-width="1"/>
+        <line x1="596" y1="12" x2="596" y2="32" stroke="#dcd9cf" stroke-width="1"/>
+      </svg>
+      <div class="nav-row">
+        <div class="nav-seg active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.35-4.35" stroke-linecap="round"/></svg>
+          Treatment Dynamics
+        </div>
+        <div class="nav-seg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h9l5 5v13H6z"/><path d="M14 3v5h5" /></svg>Visits</div>
+        <div class="nav-seg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="9" width="18" height="7" rx="3.5" transform="rotate(-45 12 12)"/><path d="M9 15l6-6" stroke-linecap="round"/></svg>Medications</div>
+        <div class="nav-seg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3"/></svg>Labs</div>
+        <div class="nav-seg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l7 3v6c0 5-3 8-7 9-4-1-7-4-7-9V6l7-3z"/></svg>Allergies</div>
+        <div class="nav-seg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 3c0 6 10 12 10 18M17 3c0 6-10 12-10 18M6 8h12M6 16h12"/></svg>Genetics</div>
+      </div>
+    </div>
+
+    <!-- PATIENT + VITALS -->
+    <div class="patient-row">
+      <div class="patient-card">
+        <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=200&fit=crop&crop=faces" alt="">
+        <div class="patient-meta">
+          <div class="sub">Female, 24</div>
+          <div class="name">Tiffany Woodward</div>
+        </div>
+      </div>
+
+      <div class="vitals">
+        <div class="vitals-top">
+          <div class="vital diagnosis"><span class="label">Diagnosis</span><span class="value">Hypertension</span></div>
+          <div class="vital"><span class="label">Heart Rate</span><span class="value">89 <small>bpm</small></span></div>
+          <div class="vital"><span class="label">Pressure</span><span class="value">100<small>/67</small></span></div>
+          <div class="vital"><span class="label">Oxygen</span><span class="value">98 <small>%</small></span></div>
+          <div class="vital"><span class="label">Temperature</span><span class="value">36.8 <small>°c</small></span></div>
+        </div>
+        <div class="vitals-tabs">
+          <div class="vtab icon-only"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></div>
+          <div class="vtab">Office Visits</div>
+          <div class="vtab active">Medications</div>
+          <div class="vtab">Labs</div>
+          <div class="vtab">Procedures</div>
+          <div class="vtab">Hospitalizations</div>
+          <div class="vtab">Imaging</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TIMELINE -->
+    <div class="timeline-grid">
+
+      <!-- AUGUST -->
+      <div class="week">
+        <div class="node"><span class="dot"></span><span class="when"><b>Aug</b><span>Week 1</span></span></div>
+
+        <div class="chip-row">
+          <div class="chip"><span class="swatch"><svg viewBox="0 0 24 24" fill="none" stroke="#1e1d1a" stroke-width="2"><rect x="3" y="9" width="18" height="7" rx="3.5" transform="rotate(-45 12 12)"/></svg></span>Aspirin <span class="count">×2</span></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><span class="title">Blood Pressure</span><span class="more">⋯</span></div>
+          <div class="bp-chart">
+            <span class="bp-bubble" style="left:44%">180<span style="opacity:.6">/120</span></span>
+            <svg viewBox="0 0 300 64" preserveAspectRatio="none">
+              <path d="M0,46 C20,40 35,50 50,44 C70,36 85,10 105,16 C120,20 130,40 150,42 C170,44 185,28 205,30 C225,32 245,52 265,48 C280,46 290,50 300,46 L300,64 L0,64 Z" fill="#e5ead4"/>
+              <path d="M0,46 C20,40 35,50 50,44 C70,36 85,10 105,16 C120,20 130,40 150,42 C170,44 185,28 205,30 C225,32 245,52 265,48 C280,46 290,50 300,46" fill="none" stroke="#c7cf9e" stroke-width="2"/>
+            </svg>
+          </div>
+          <div class="bp-foot">
+            <span class="avg">Average: <b>160 <small>/ 90</small></b></span>
+            <span class="delta up">+10°</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><span class="title">Symptoms</span><span class="more">⋯</span></div>
+          <div class="symptom-body">
+            <svg viewBox="0 0 40 56" fill="none" stroke="#c9c6ba" stroke-width="1.6">
+              <circle cx="20" cy="8" r="6" fill="#f3f1ea"/>
+              <circle cx="24" cy="6" r="2.5" fill="#e7e14e" stroke="none"/>
+              <path d="M10 30c0-8 4-13 10-13s10 5 10 13v6c0 4-2 6-4 8l-1 8h-10l-1-8c-2-2-4-4-4-8z" fill="#f3f1ea"/>
+            </svg>
+            <span class="symptom-tag">Headache</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SEPTEMBER -->
+      <div class="week">
+        <div class="node"><span class="dot"></span><span class="when"><b>Sep</b><span>Week 1</span></span></div>
+
+        <div class="chip-row">
+          <div class="chip"><span class="swatch"><svg viewBox="0 0 24 24" fill="none" stroke="#1e1d1a" stroke-width="2"><rect x="3" y="9" width="18" height="7" rx="3.5" transform="rotate(-45 12 12)"/></svg></span>Bisoprolol <span class="count">×3</span></div>
+          <div class="chip"><span class="swatch"><svg viewBox="0 0 24 24" fill="none" stroke="#1e1d1a" stroke-width="2"><rect x="3" y="9" width="18" height="7" rx="3.5" transform="rotate(-45 12 12)"/></svg></span>Aspirin <span class="count">×2</span></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><span class="title">Blood Pressure</span><span class="more">⋯</span></div>
+          <div class="bp-chart">
+            <span class="bp-bubble" style="left:34%">135<span style="opacity:.6">/92</span></span>
+            <svg viewBox="0 0 300 64" preserveAspectRatio="none">
+              <path d="M0,30 C18,26 30,18 48,20 C64,22 76,34 96,32 C112,30 122,14 140,16 C158,18 168,36 186,38 C204,40 216,26 234,28 C252,30 264,44 282,42 C290,41 296,40 300,40 L300,64 L0,64 Z" fill="#e5ead4"/>
+              <path d="M0,30 C18,26 30,18 48,20 C64,22 76,34 96,32 C112,30 122,14 140,16 C158,18 168,36 186,38 C204,40 216,26 234,28 C252,30 264,44 282,42 C290,41 296,40 300,40" fill="none" stroke="#c7cf9e" stroke-width="2"/>
+            </svg>
+          </div>
+          <div class="bp-foot">
+            <span class="avg">Average: <b>130 <small>/ 92</small></b></span>
+            <span class="delta down">−20°</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><span class="title">ECG</span><span class="more">⋯</span></div>
+          <div class="ecg-chart">
+            <svg viewBox="0 0 300 44" preserveAspectRatio="none">
+              <path d="M0,22 L40,22 L48,22 L54,8 L60,36 L66,22 L100,22 L108,22 L114,10 L120,32 L126,22 L160,22 L168,22 L174,8 L180,36 L186,22 L220,22 L228,22 L234,10 L240,32 L246,22 L300,22"
+                    fill="none" stroke="#d9776f" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER STRIP -->
+    <div class="foot-strip">
+      <div class="foot-cal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+        Jan 2022
+      </div>
+      <div class="foot-months">
+        <span>Feb</span><span>Mar</span><span>Apr</span><span>May</span>
+        <span>Jun</span><span>Jul</span><span class="hl">Aug</span><span class="hl">Sep</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>
